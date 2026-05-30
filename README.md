@@ -22,6 +22,12 @@ Default person class ids are `1 2`.
 The detector uses `yolov8n.pt` with a larger input size for small objects.
 Tracking uses ByteTrack through Ultralytics.
 
+## Render
+
+```bash
+python -m src.pipeline --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v --output outputs/uav0000086_00000_v.mp4
+```
+
 ## Run
 ```bash
 python -m src.main --data VisDrone2019-MOT-val
