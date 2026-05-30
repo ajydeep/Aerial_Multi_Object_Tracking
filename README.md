@@ -48,3 +48,17 @@ The benchmark prints FPS and hardware details.
 ```bash
 python -m src.main --data VisDrone2019-MOT-val
 ```
+
+## Fine-tune detector (local / cloud)
+
+Run the training wrapper (local CPU or cloud GPU). On an M1 Mac this will be slow; prefer a cloud GPU for full runs.
+
+```bash
+# local CPU (slow)
+python -m src.train --data data/yolo/data.yaml --weights yolov8n.pt --epochs 20 --imgsz 1280 --batch 8 --device cpu
+
+# or use helper
+./train.sh
+```
+
+The script uses `ultralytics.YOLO.train` and writes outputs under `runs/train`.
