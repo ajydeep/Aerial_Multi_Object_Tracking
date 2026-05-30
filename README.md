@@ -28,6 +28,14 @@ Tracking uses ByteTrack through Ultralytics.
 python -m src.pipeline --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v --output outputs/uav0000086_00000_v.mp4
 ```
 
+## FPS
+
+```bash
+python -m src.benchmark --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v --frames 50
+```
+
+The benchmark prints FPS and hardware details.
+
 ## Run
 ```bash
 python -m src.main --data VisDrone2019-MOT-val

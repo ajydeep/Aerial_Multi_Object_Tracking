@@ -62,7 +62,13 @@ def draw_tracks(frame, items, trails, trail_length):
             cv2.line(frame, start, end, (255, 180, 0), 2)
 
 
-def render_sequence(sequence_dir: Path, output_file: Path, tracker: ByteTrackTracker, config: RenderConfig | None = None) -> None:
+def render_sequence(
+    sequence_dir: Path,
+    output_file: Path,
+    tracker: ByteTrackTracker,
+    config: RenderConfig | None = None,
+    max_frames: int | None = None,
+) -> None:
     render_config = config or RenderConfig()
     frames = list_frames(sequence_dir)
     if not frames:
@@ -77,7 +83,9 @@ def render_sequence(sequence_dir: Path, output_file: Path, tracker: ByteTrackTra
     writer = cv2.VideoWriter(str(output_file), cv2.VideoWriter_fourcc(*"mp4v"), render_config.fps, (width, height))
 
     trails = defaultdict(lambda: deque(maxlen=render_config.trail_length))
-    for frame_path in frames:
+    for frame_index, frame_path in enumerate(frames):
+        if max_frames is not None and frame_index >= max_frames:
+            break
         frame = cv2.imread(str(frame_path))
         if frame is None:
             continue
