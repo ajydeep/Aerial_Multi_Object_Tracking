@@ -17,6 +17,14 @@ python -m src.prepare_dataset --data VisDrone2019-MOT-val --output outputs/visdr
 
 Default person class ids are `1 2`.
 
+### Export YOLOv8 format (for fine-tuning)
+
+```bash
+python -m src.convert_to_yolo --data VisDrone2019-MOT-val --out data/yolo --val-split 0.1 --subsample 2
+```
+
+This writes `data/yolo/images` and `data/yolo/labels` and a `data/yolo/data.yaml`. The `data/` folder is not added to git by default.
+
 ## Detector and Tracker
 
 The detector uses `yolov8n.pt` with a larger input size for small objects.
