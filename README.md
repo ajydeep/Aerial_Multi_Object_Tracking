@@ -17,6 +17,11 @@ python -m src.prepare_dataset --data VisDrone2019-MOT-val --output outputs/visdr
 
 Default person class ids are `1 2`.
 
+## Detector and Tracker
+
+The detector uses `yolov8n.pt` with a larger input size for small objects.
+Tracking uses ByteTrack through Ultralytics.
+
 ## Run
 ```bash
 python -m src.main --data VisDrone2019-MOT-val
