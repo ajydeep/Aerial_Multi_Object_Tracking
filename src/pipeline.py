@@ -10,8 +10,23 @@ from src.render import render_sequence
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path, default=Path("result.mp4"))
     return parser.parse_args()
+
+
+def next_output_path(output_file: Path) -> Path:
+    if not output_file.exists():
+        return output_file
+
+    suffix = output_file.suffix
+    stem = output_file.stem
+    parent = output_file.parent
+    index = 1
+    while True:
+        candidate = parent / f"{stem}{index}{suffix}"
+        if not candidate.exists():
+            return candidate
+        index += 1
 
 
 def main() -> None:
@@ -20,8 +35,9 @@ def main() -> None:
         raise FileNotFoundError(args.source)
 
     tracker = ByteTrackTracker()
-    render_sequence(args.source, args.output, tracker)
-    print(args.output)
+    output_file = next_output_path(args.output)
+    render_sequence(args.source, output_file, tracker)
+    print(output_file)
 
 
 if __name__ == "__main__":
