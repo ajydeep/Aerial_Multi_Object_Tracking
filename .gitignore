@@ -1,0 +1,12 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+*.mp4
+*.avi
+*.mov
+runs/
+outputs/
+weights/
+checkpoints/
+VisDrone2019-MOT-val/
