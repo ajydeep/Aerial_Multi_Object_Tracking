@@ -8,7 +8,7 @@ from pathlib import Path
 class DetectorConfig:
     weights: Path = Path("yolov8n.pt")
     imgsz: int = 1280
-    conf: float = 0.15
+    conf: float = 0.35
     iou: float = 0.5
     max_det: int = 300
     person_class_ids: tuple[int, ...] = (0,)
