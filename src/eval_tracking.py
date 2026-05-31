@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 from pathlib import Path
 import csv
 import tempfile
@@ -51,15 +52,15 @@ def main() -> None:
             rows.append([idx, int(tid), left, top, width, height, float(c), 1, -1, -1])
 
     write_mot_txt(rows, args.output)
-    print(f"Wrote {args.output}")
+    logging.getLogger(__name__).debug("Wrote %s", args.output)
 
     # Try to run motmetrics if installed
     try:
         import motmetrics as mm  # type: ignore
 
-        print("motmetrics available: you can compute MOTA/IDF1 using the library. See README.")
+        logging.getLogger(__name__).debug("motmetrics available: you can compute MOTA/IDF1 using the library. See README.")
     except Exception:
-        print("motmetrics not available. Install with: pip install motmetrics")
+        logging.getLogger(__name__).debug("motmetrics not available. Install with: pip install motmetrics")
 
 
 if __name__ == "__main__":

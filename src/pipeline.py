@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import logging
 
 from src.tracker import ByteTrackTracker
 from src.render import render_sequence
@@ -42,7 +43,7 @@ def main() -> None:
     else:
         output_file = next_output_path(args.output)
     render_sequence(args.source, output_file, tracker)
-    print(output_file)
+    logging.getLogger(__name__).debug("Wrote output: %s", output_file)
 
 
 if __name__ == "__main__":

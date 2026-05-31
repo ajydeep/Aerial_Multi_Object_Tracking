@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 from typing import List, Tuple
 
@@ -120,7 +121,7 @@ def main() -> None:
         "f1": f1,
         "per_frame": results,
     }
-    print(json.dumps(report, indent=2))
+    logging.getLogger(__name__).debug(json.dumps(report, indent=2))
 
 
 if __name__ == "__main__":

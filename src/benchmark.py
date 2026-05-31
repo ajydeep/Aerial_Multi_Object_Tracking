@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import platform
 import tempfile
 import time
@@ -48,7 +49,7 @@ def main() -> None:
         "fps": round(fps, 2),
         "hardware": hardware_info(),
     }
-    print(json.dumps(report, indent=2))
+    logging.getLogger(__name__).debug(json.dumps(report, indent=2))
 
 
 if __name__ == "__main__":

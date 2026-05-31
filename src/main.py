@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+import logging
 
 
 def parse_args() -> argparse.Namespace:
@@ -12,7 +13,7 @@ def main() -> None:
     args = parse_args()
     if not args.data.exists():
         raise FileNotFoundError(args.data)
-    print(f"Ready: {args.data}")
+    logging.getLogger(__name__).debug("Ready: %s", args.data)
 
 
 if __name__ == "__main__":
