@@ -35,7 +35,12 @@ def main() -> None:
         raise FileNotFoundError(args.source)
 
     tracker = ByteTrackTracker()
-    output_file = next_output_path(args.output)
+    # If the user didn't provide an explicit output, default to outputs/<source_basename>.mp4
+    if args.output == Path("result.mp4"):
+        default_out = Path("outputs") / f"{args.source.name}.mp4"
+        output_file = next_output_path(default_out)
+    else:
+        output_file = next_output_path(args.output)
     render_sequence(args.source, output_file, tracker)
     print(output_file)
 

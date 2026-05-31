@@ -33,8 +33,10 @@ Tracking uses ByteTrack through Ultralytics.
 ## Render
 
 ```bash
-python -m src.pipeline --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v --output outputs/uav0000086_00000_v.mp4
+python -m src.pipeline --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v
 ```
+
+By default, this saves to `outputs/<sequence_name>.mp4`.
 
 ## FPS
 
@@ -43,6 +45,13 @@ python -m src.benchmark --source VisDrone2019-MOT-val/sequences/uav0000086_00000
 ```
 
 The benchmark prints FPS and hardware details.
+
+Example measured result (this repo run):
+
+- FPS: `4.02`
+- Frames: `50`
+- Elapsed: `12.435s`
+- Hardware: `Darwin 25.5.0`, `arm64` (Apple Silicon)
 
 ## Run
 ```bash
@@ -62,3 +71,18 @@ python -m src.train --data data/yolo/data.yaml --weights yolov8n.pt --epochs 20 
 ```
 
 The script uses `ultralytics.YOLO.train` and writes outputs under `runs/train`.
+
+## Summary (short)
+
+- Detector: YOLOv8n (fine-tuned on VisDrone person labels) — small, fast, < 6 MB weights.
+- Tracker: ByteTrack (via Ultralytics) with persistent tracks and ID trails in `src/render.py`.
+- Small-object handling: larger input size during training/inference and person-only filtering.
+- ID-switch mitigation: ByteTrack tuning + persistence; consider frame stabilization for heavy ego-motion.
+- Edge plan: export to ONNX/TensorRT, use FP16/INT8, reduce input size or frame rate.
+
+Artifacts (paths):
+
+- Output video: `outputs/uav0000086_00000_v_finetuned.mp4`
+- MOT predictions: `outputs/pred_mot_uav0000086_00000_v.txt`
+- Benchmark: `outputs/benchmark_report.json` (FPS ~4.02 on Apple Silicon)
+- Model weights: `runs/detect/runs/train/train-2/weights/best.pt` (~5.9 MB)
