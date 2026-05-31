@@ -72,17 +72,60 @@ python -m src.train --data data/yolo/data.yaml --weights yolov8n.pt --epochs 20 
 
 The script uses `ultralytics.YOLO.train` and writes outputs under `runs/train`.
 
-## Summary (short)
+## Summary Report
 
-- Detector: YOLOv8n (fine-tuned on VisDrone person labels) — small, fast, < 6 MB weights.
-- Tracker: ByteTrack (via Ultralytics) with persistent tracks and ID trails in `src/render.py`.
-- Small-object handling: larger input size during training/inference and person-only filtering.
-- ID-switch mitigation: ByteTrack tuning + persistence; consider frame stabilization for heavy ego-motion.
-- Edge plan: export to ONNX/TensorRT, use FP16/INT8, reduce input size or frame rate.
+**Deliverables**
+- **Code**: This repo contains the detection, tracking, rendering and helper scripts. Key files: [src/detector.py](src/detector.py), [src/tracker.py](src/tracker.py), [src/render.py](src/render.py), [src/pipeline.py](src/pipeline.py).
+- **Output Video**: processed clip with single box per track, deterministic color per ID, ID label and short trail: [outputs/uav0000086_00000_v_finetuned.mp4](outputs/uav0000086_00000_v_finetuned.mp4).
+- **Predictions**: MOT-format predictions for scoring: [outputs/pred_mot_uav0000086_00000_v.txt](outputs/pred_mot_uav0000086_00000_v.txt).
 
-Artifacts (paths):
+**1) Architecture & rationale**
+- **Detector**: `YOLOv8n` (ultralytics) fine-tuned on VisDrone person labels. Rationale: very small footprint (~6 MB), fast inference, and straightforward export to ONNX/TensorRT for edge deployment.
+- **Tracker**: ByteTrack (via Ultralytics `model.track`) — provides motion+appearance association, low latency, and stable persistent IDs.
 
-- Output video: `outputs/uav0000086_00000_v_finetuned.mp4`
-- MOT predictions: `outputs/pred_mot_uav0000086_00000_v.txt`
-- Benchmark: `outputs/benchmark_report.json` (FPS ~4.02 on Apple Silicon)
-- Model weights: `runs/detect/runs/train/train-2/weights/best.pt` (~5.9 MB)
+**2) Small-object handling**
+- **Training / Inference image size**: train and run inference with larger input (e.g., 1280 px shorter side) so small persons are more than a few pixels tall.
+- **Filtering**: restrict to person class IDs at the detector level to reduce false positives.
+- **Augmentation / sampling**: oversample frames with small/partial people, enable mosaic and mixup during training to improve small-object robustness.
+
+**3) ID-switching & occlusion handling**
+- **ByteTrack persistence**: configured to persist short-term lost tracks and re-associate on re-entry using motion prediction + appearance features.
+- **Track smoothing**: we render short trails and use Kalman-based motion prediction to reduce jitter and brief switches.
+- **Practical mitigations**: (a) tune re-id / match thresholds; (b) apply simple frame stabilization to compensate for drone ego-motion; (c) increase history length before terminating a track to avoid premature ID death during occlusion.
+
+**4) Edge deployment plan (NVIDIA Jetson / ARM)**
+- **Model export**: export `YOLOv8n` to ONNX, then convert to TensorRT engines (FP16 / INT8) for Jetson. Use `ultralytics` export utilities or `torch.onnx` -> `trtexec`.
+- **Quantization & pruning**: prefer FP16 first; if needed, calibrate and deploy INT8 for further speed/size; consider pruning to reduce conv filters.
+- **Pipeline**: run detector in TensorRT, tracker in lightweight C++/Python binding (ByteTrack translated), process frames at reduced resolution or lower frame rate for real-time constraints.
+
+**5) How to run (reproduce outputs)**
+- Prepare environment and data (see **Setup** and **Data** sections above).
+- Render a sequence (writes to `outputs/` by default):
+
+```bash
+python -m src.pipeline --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v
+```
+
+- Benchmark (sample):
+
+```bash
+python -m src.benchmark --source VisDrone2019-MOT-val/sequences/uav0000086_00000_v --frames 50
+```
+
+- Compute MOT metrics (optional): install `motmetrics` then run the eval script using the provided predictions file:
+
+```bash
+pip install motmetrics
+python -m src.eval_tracking --sequence VisDrone2019-MOT-val/sequences/uav0000086_00000_v --output outputs/pred_mot_uav0000086_00000_v.txt --max-frames 200
+# then use motmetrics to compute MOTA/IDF1 against ground-truth
+```
+
+**6) Notes & repository artifacts**
+- Single-box per track and deterministic color/ID rendering implemented in [src/render.py](src/render.py).
+- Output artifacts:
+	- [outputs/uav0000086_00000_v_finetuned.mp4](outputs/uav0000086_00000_v_finetuned.mp4)
+	- [outputs/pred_mot_uav0000086_00000_v.txt](outputs/pred_mot_uav0000086_00000_v.txt)
+	- [outputs/benchmark_report.json](outputs/benchmark_report.json)
+	- [runs/detect/runs/train/train-2/weights/best.pt](runs/detect/runs/train/train-2/weights/best.pt)
+
+If you'd like, I can (a) re-render the sequence with the new sharp ID labels for verification, (b) install `motmetrics` and compute MOTA/IDF1 locally, or (c) prepare a push to a private Git repo. Which should I do next?
