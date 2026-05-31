@@ -2,12 +2,18 @@
 .venv/
 __pycache__/
 *.pyc
+
+# Large media files
 *.mp4
 *.avi
 *.mov
-runs/
-outputs/
+
+# Local datasets / generated artifacts
+VisDrone2019-MOT-val/
 data/
+runs/
 weights/
 checkpoints/
-VisDrone2019-MOT-val/
+
+# Outputs
+outputs/*
